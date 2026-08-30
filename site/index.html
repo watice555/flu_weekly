@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="按流感年度对比南北方哨点医院 ILI%，每个数值均可追溯至国家流感中心周报。" />
+  <title>流感周报 · 南北方 ILI%</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <main>
+    <header class="masthead">
+      <div><p class="eyebrow">中国国家流感中心 · 周报数据存档</p><h1>流感样病例趋势 <span>ILI%</span></h1>
+        <p class="subtitle">南方与北方，按流感年度对比。数值来自每期报告正文。</p></div>
+      <div class="edition" id="edition">正在读取本地数据…</div>
+    </header>
+    <div id="error" class="notice error" role="alert" hidden></div>
+    <section id="content" hidden>
+      <div class="toolbar">
+        <fieldset id="seasons"><legend>流感年度 <span>第 14 周 → 次年第 13 周</span></legend><div class="season-options" id="season-options"></div></fieldset>
+        <span class="basis">● 当期发布值</span>
+      </div>
+      <div class="charts">
+        <section class="chart-card" aria-labelledby="south-title">
+          <header class="chart-heading"><div><h2 id="south-title">南方省份</h2><p>流感样病例占门急诊病例总数百分比</p></div><div class="latest" id="south-latest"></div></header>
+          <div class="plot-scroll"><div id="south-chart" class="chart"></div></div>
+        </section>
+        <section class="chart-card" aria-labelledby="north-title">
+          <header class="chart-heading"><div><h2 id="north-title">北方省份</h2><p>流感样病例占门急诊病例总数百分比</p></div><div class="latest" id="north-latest"></div></header>
+          <div class="plot-scroll"><div id="north-chart" class="chart"></div></div>
+        </section>
+      </div>
+      <p class="chart-hint">悬停或聚焦数据点查看数值，点击查看报告来源。缺失周保留断点，不插值。</p>
+      <section class="selection" id="selection" aria-live="polite"></section>
+      <aside class="notice" id="coverage"></aside>
+      <details class="table-section" id="table-section">
+        <summary>每周数值与报告来源 <span id="report-count"></span></summary>
+        <div class="table-tools"><label>报告年份 <select id="year-filter"></select></label><button id="export-csv" type="button">导出当前年份 CSV</button></div>
+        <div class="table-scroll"><table><thead><tr><th>报告周次</th><th>监测日期</th><th>南方 ILI%</th><th>北方 ILI%</th><th>原始报告</th></tr></thead><tbody id="rows"></tbody></table></div>
+      </details>
+      <footer>
+        <p><strong>读图口径：</strong>ILI% 是哨点医院门急诊中流感样病例的比例，不等于流感确诊率或人群感染率。图中统一使用各期报告的当周发布值；后续报告可能修订或重新对齐历史数据，因此曲线不一定与最新 PDF 的历史曲线逐点一致。</p>
+        <p>报告 PDF 仅在本机归档；网页链接指向官网，官网文件可能更新。美团指数的口径与空间范围不同，当前未合并，也未计算相关性。</p>
+        <a href="https://ivdc.chinacdc.cn/cnic/zyzx/lgzb/" target="_blank" rel="noopener noreferrer">国家流感中心 · 官方周报目录 ↗</a>
+      </footer>
+    </section>
+  </main>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+</body>
+</html>
