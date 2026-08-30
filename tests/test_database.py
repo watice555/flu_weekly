@@ -77,6 +77,11 @@ class DatabaseTests(unittest.TestCase):
         self.db = self.root / "data.sqlite3"
         self.catalog = self.root / "sources.json"
         self.output = self.root / "public.json"
+        # These tests isolate original-value storage; source-value tests exercise
+        # the complete import transaction and both real text parsers together.
+        references = patch("flu_data.database.import_references", return_value=False)
+        references.start()
+        self.addCleanup(references.stop)
         self.source = "https://ivdc.chinacdc.cn/cnic/zyzx/lgzb/202608/report.htm"
         self.catalog.write_text(json.dumps({"schema_version": 1, "reports": {
             "2026-W34": {"detail_url": self.source, "pdf_url": self.source + ".pdf"}}}))

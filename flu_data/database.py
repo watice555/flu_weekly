@@ -8,6 +8,7 @@ from pathlib import Path
 
 from . import CATALOG, DATABASE, EXPORT, REPORTS_DIR
 from .extract import PARSER_VERSION, extract_report, file_hash
+from .source_values import SCHEMA as SOURCE_SCHEMA, import_references
 from .sources import LIST_URL, atomic_json, load_catalog, official_url, report_id
 
 SCHEMA = """
@@ -58,6 +59,7 @@ def connect(path):
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
     connection.executescript(SCHEMA)
+    connection.executescript(SOURCE_SCHEMA)
     return connection
 
 
@@ -68,10 +70,12 @@ def import_reports(reports_dir=REPORTS_DIR, database=DATABASE, catalog_path=CATA
     catalog = load_catalog(catalog_path)["reports"]
     connection = connect(database)
     changed = 0
+    references_changed = 0
     try:
         with connection:
             for path in files:
                 sha = file_hash(path)
+                current_changed = False
                 existing = connection.execute("SELECT * FROM report_versions WHERE sha256 = ?", (sha,)).fetchone()
                 if existing and existing["parser_version"] == PARSER_VERSION:
                     key = existing["report_id"]
@@ -95,15 +99,19 @@ def import_reports(reports_dir=REPORTS_DIR, database=DATABASE, catalog_path=CATA
                         (sha, key, path.name, report.number, report.start, report.end, PARSER_VERSION,
                          datetime.now(timezone.utc).isoformat(timespec="seconds")),
                     )
-                    connection.execute("DELETE FROM observations WHERE report_sha256 = ?", (sha,))
                     connection.execute("INSERT OR REPLACE INTO report_flags VALUES(?,?)",
                                        (sha, json.dumps(report.warnings, ensure_ascii=False)))
                     for obs in report.observations:
-                        connection.execute("INSERT INTO observations VALUES(?,?,?,?,?)", (
-                            sha, obs.region, obs.tenths, json.dumps(obs.pages),
-                            json.dumps(obs.evidence, ensure_ascii=False),
-                        ))
+                        connection.execute(
+                            "INSERT INTO observations VALUES(?,?,?,?,?) "
+                            "ON CONFLICT(report_sha256,region) DO UPDATE SET ili_tenths=excluded.ili_tenths, "
+                            "pages_json=excluded.pages_json,evidence_json=excluded.evidence_json", (
+                                sha, obs.region, obs.tenths, json.dumps(obs.pages),
+                                json.dumps(obs.evidence, ensure_ascii=False),
+                            ),
+                        )
                     changed += 1
+                    current_changed = True
                 source = catalog.get(key, {})
                 for field in ("detail_url", "pdf_url"):
                     value = source.get(field)
@@ -111,6 +119,7 @@ def import_reports(reports_dir=REPORTS_DIR, database=DATABASE, catalog_path=CATA
                         if not official_url(value):
                             raise ValueError(f"Invalid official {field} for {key}")
                         connection.execute(f"UPDATE reports SET {field} = ? WHERE id = ?", (value, key))
+                references_changed += import_references(connection, path, sha, force=current_changed)
         if connection.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
             raise ValueError("SQLite integrity check failed")
         counts = {
@@ -118,6 +127,11 @@ def import_reports(reports_dir=REPORTS_DIR, database=DATABASE, catalog_path=CATA
             "versions": connection.execute("SELECT COUNT(*) FROM report_versions").fetchone()[0],
             "observations": connection.execute("SELECT COUNT(*) FROM current_observations").fetchone()[0],
             "changed": changed,
+            "references_changed": references_changed,
+            "references": connection.execute(
+                "SELECT COUNT(*) FROM observation_sources WHERE reference_kind != 'current_report'"
+            ).fetchone()[0],
+            "source_targets": connection.execute("SELECT COUNT(*) FROM weekly_source_values").fetchone()[0],
         }
         return counts
     finally:
