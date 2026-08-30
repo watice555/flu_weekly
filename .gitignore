@@ -1,0 +1,17 @@
+/.venv/
+/flu_reports/
+/data/
+/site/data/
+/tmp/
+*.pdf
+*.sqlite
+*.sqlite3
+*.db
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
