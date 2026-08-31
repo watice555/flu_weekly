@@ -10,7 +10,7 @@ if [[ ! -x .venv/bin/python ]]; then
     exit 1
 fi
 
-.venv/bin/python -m flu_data.query_sources "$@"
+.venv/bin/python -m flu_data.source_table --open "$@"
 query_exit_code=$?
 if (( query_exit_code != 0 && $# == 0 )) && [[ -t 0 ]]; then
     read -r "?按回车关闭……"

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>每周五类来源值 · 流感周报</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #243443; background: #f4f6f8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1240px; margin: 0 auto; padding: 36px 28px; }
+    .eyebrow { margin: 0 0 9px; font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #517c88; }
+    h1 { margin: 0; font-size: 30px; letter-spacing: -.03em; }
+    .intro { margin: 12px 0 20px; line-height: 1.8; color: #566674; font-size: 14px; }
+    .filters { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; padding: 18px; background: white; border: 1px solid #dde4e9; border-radius: 12px; }
+    label { display: grid; gap: 7px; font-size: 13px; font-weight: 600; }
+    label.search { flex: 1; min-width: 210px; }
+    select, input, button { font: inherit; font-size: 14px; height: 39px; border: 1px solid #cdd7df; border-radius: 6px; background: white; color: inherit; padding: 0 11px; }
+    select { min-width: 130px; }
+    input { width: 100%; }
+    button { cursor: pointer; background: #f6f8fa; }
+    button:hover { background: #eaf1f4; }
+    :focus-visible { outline: 3px solid #8cbdcf; outline-offset: 2px; }
+    .meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 18px 2px 10px; font-size: 13px; color: #62707d; }
+    #count { color: #245f73; font-weight: 600; }
+    .table-wrap { overflow: auto; max-height: 68vh; background: white; border: 1px solid #dbe3e9; border-radius: 10px; }
+    table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 780px; font-variant-numeric: tabular-nums; }
+    caption { text-align: left; padding: 12px 18px; color: #62707d; font-size: 12px; background: white; }
+    th, td { padding: 11px 16px; text-align: right; white-space: nowrap; border-bottom: 1px solid #e9edf0; font-size: 14px; }
+    thead th { position: sticky; top: 0; z-index: 1; background: #eaf0f4; color: #344e60; font-size: 13px; font-weight: 600; }
+    th:first-child, td:nth-child(2), th:nth-child(2) { text-align: left; }
+    tbody th { font-weight: 500; }
+    .group-1 { background: #f8fafb; }
+    tbody tr:hover { background: #ecf5f8; }
+    td.missing { color: #84919b; }
+    a { color: #245f73; text-decoration: none; border-bottom: 1px dotted #92b2bf; }
+    a:hover { color: #163e50; border-bottom-style: solid; }
+    .region { font-size: 12px; padding: 3px 8px; border-radius: 4px; display: inline-block; }
+    .south { background: #f5eae1; color: #93603b; }
+    .north { background: #e5edf7; color: #45698e; }
+    .empty { text-align: center; padding: 36px; color: #62707d; }
+    [hidden] { display: none !important; }
+    footer { margin: 15px 2px 0; color: #687784; font-size: 12px; line-height: 1.8; }
+    @media (max-width: 640px) { main { padding: 24px 14px; } h1 { font-size: 25px; } .filters { gap: 12px; } label.search { flex-basis: 100%; } .table-wrap { max-height: 65vh; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">流感周报 / 本地数据表</p>
+  <h1>每周五类来源值</h1>
+  <p class="intro">每个目标周分南方、北方两行，横向比较五类报告中的 ILI%。<br>当期原报告缺失、但有后续引用的早年周次也列出；缺值留空，不补值、不去重。网站仍只使用当期报告值。</p>
+  <div class="filters" role="search" aria-label="表格筛选">
+    <label>目标年份<select id="year"><option value="">全部年份</option><!-- YEARS --></select></label>
+    <label>地区<select id="region"><option value="">南北方全部</option><option value="south">南方</option><option value="north">北方</option></select></label>
+    <label class="search">查找目标周<input id="search" type="search" placeholder="如 24/7、2024-W07 或 2024" autocomplete="off"></label>
+    <button id="reset" type="button">清除筛选</button>
+  </div>
+  <div class="meta"><span id="count" role="status"><!-- COUNTS --></span><span>单位：% · 空白表示暂无来源值</span></div>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="全部周次的五类来源表格">
+    <table>
+      <caption>后一年、后两年、后三年均指该年同周号报告中的引用值。悬停数值查看来源期次，点击打开官方 PDF。</caption>
+      <thead><tr><th scope="col">目标周</th><th scope="col">地区</th><th scope="col">当期报告</th><th scope="col">下一周报告</th><th scope="col">后一年报告</th><th scope="col">后两年报告</th><th scope="col">后三年报告</th></tr></thead>
+      <tbody><!-- ROWS --></tbody>
+    </table>
+    <p id="empty" class="empty" hidden>没有符合筛选条件的周次。请调整条件或清除筛选。</p>
+  </div>
+  <footer>生成时间：<!-- GENERATED -->。这是本地数据库的快照；再次双击一键脚本会重新生成。<br>仅列出指定的五类来源；超出后三年的异常引用仍保留在数据库明细中，不挪入这五列。PDF 和数据库均未嵌入本页。</footer>
+</main>
+<script>
+  const year = document.querySelector('#year');
+  const region = document.querySelector('#region');
+  const search = document.querySelector('#search');
+  const rows = Array.from(document.querySelectorAll('tbody tr'));
+  function normalizeQuery(value) {
+    const text = value.trim().toUpperCase().replace(/\s+/g, '');
+    const match = text.match(/^(\d{2}|\d{4})(?:\/|-W)(\d{1,2})$/);
+    if (!match) return text;
+    const fullYear = match[1].length === 2 ? `20${match[1]}` : match[1];
+    return `${fullYear}-W${match[2].padStart(2, '0')}`;
+  }
+  function filterRows() {
+    const query = normalizeQuery(search.value);
+    let count = 0;
+    const weeks = new Set();
+    for (const row of rows) {
+      const show = (!year.value || row.dataset.year === year.value)
+        && (!region.value || row.dataset.region === region.value)
+        && (!query || row.dataset.week.includes(query));
+      row.hidden = !show;
+      if (show) { count += 1; weeks.add(row.dataset.week); }
+    }
+    document.querySelector('#count').textContent = `当前显示 ${weeks.size} 个目标周 · ${count} 行 / 共 ${rows.length} 行`;
+    document.querySelector('#empty').hidden = count !== 0;
+  }
+  year.addEventListener('change', filterRows);
+  region.addEventListener('change', filterRows);
+  search.addEventListener('input', filterRows);
+  document.querySelector('#reset').addEventListener('click', () => {
+    year.value = ''; region.value = ''; search.value = ''; filterRows();
+  });
+  filterRows();
+</script>
+</body>
+</html>
