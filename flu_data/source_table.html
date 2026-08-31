@@ -35,6 +35,15 @@
     td.missing { color: #84919b; }
     a { color: #245f73; text-decoration: none; border-bottom: 1px dotted #92b2bf; }
     a:hover { color: #163e50; border-bottom-style: solid; }
+    .value { display: inline-block; padding: 2px 7px; border-radius: 4px; }
+    .baseline .value { color: #243443; font-weight: 700; }
+    .same .value, .legend .same { color: #166534; background: #e8f5ec; }
+    .different .value, .legend .different { color: #a12e35; background: #fdebec; }
+    .unpaired .value, .legend .unpaired { color: #626e78; background: #f0f3f5; }
+    td.same a, td.different a, td.unpaired a { border-bottom: none; }
+    td.same a:hover, td.different a:hover, td.unpaired a:hover { text-decoration: underline; }
+    .legend { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 2px 12px; font-size: 12px; color: #62707d; }
+    .legend .key { padding: 4px 8px; border-radius: 4px; }
     .region { font-size: 12px; padding: 3px 8px; border-radius: 4px; display: inline-block; }
     .south { background: #f5eae1; color: #93603b; }
     .north { background: #e5edf7; color: #45698e; }
@@ -50,12 +59,13 @@
   <h1>每周五类来源值</h1>
   <p class="intro">每个目标周分南方、北方两行，横向比较五类报告中的 ILI%。<br>当期原报告缺失、但有后续引用的早年周次也列出；缺值留空，不补值、不去重。网站仍只使用当期报告值。</p>
   <div class="filters" role="search" aria-label="表格筛选">
-    <label>目标年份<select id="year"><option value="">全部年份</option><!-- YEARS --></select></label>
-    <label>地区<select id="region"><option value="">南北方全部</option><option value="south">南方</option><option value="north">北方</option></select></label>
+    <label>目标年份<select id="year" data-default-year="<!-- DEFAULT_YEAR -->"><option value="">全部年份</option><!-- YEARS --></select></label>
+    <label>地区<select id="region"><option value="">南北方全部</option><option value="south" selected>南方</option><option value="north">北方</option></select></label>
     <label class="search">查找目标周<input id="search" type="search" placeholder="如 24/7、2024-W07 或 2024" autocomplete="off"></label>
     <button id="reset" type="button">清除筛选</button>
   </div>
   <div class="meta"><span id="count" role="status"><!-- COUNTS --></span><span>单位：% · 空白表示暂无来源值</span></div>
+  <div class="legend" aria-label="数值对照说明"><span>以当期报告为基准：</span><span class="key same">绿色：数值相同</span><span class="key different">红色：数值不同</span><span class="key unpaired">灰色：无当期值可比较</span></div>
   <div class="table-wrap" tabindex="0" role="region" aria-label="全部周次的五类来源表格">
     <table>
       <caption>后一年、后两年、后三年均指该年同周号报告中的引用值。悬停数值查看来源期次，点击打开官方 PDF。</caption>
@@ -71,6 +81,11 @@
   const region = document.querySelector('#region');
   const search = document.querySelector('#search');
   const rows = Array.from(document.querySelectorAll('tbody tr'));
+  // Open with the latest archived target year and the southern region,
+  // regardless of any form state the browser restored from an earlier visit.
+  year.value = year.dataset.defaultYear;
+  region.value = 'south';
+  search.value = '';
   function normalizeQuery(value) {
     const text = value.trim().toUpperCase().replace(/\s+/g, '');
     const match = text.match(/^(\d{2}|\d{4})(?:\/|-W)(\d{1,2})$/);

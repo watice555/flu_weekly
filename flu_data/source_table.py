@@ -58,24 +58,37 @@ def render_table(rows, sources):
                 raise ValueError(f"数值与来源不一致：{key} {region} {column}")
             pages = json.loads(source["pages_json"])
             title = f"来源：{source['source_report_id']} 报告；PDF 第 {'、'.join(map(str, pages))} 页"
+            baseline = row["current_report"]
+            if column == "current_report":
+                comparison, note = "baseline", "当期报告基准值"
+            elif baseline is None:
+                comparison, note = "unpaired", "缺少当期报告值，无法比较"
+            elif value == baseline:
+                comparison, note = "same", "与当期报告值相同"
+            else:
+                comparison, note = "different", "与当期报告值不同"
+            title += f"；{note}"
+            accessible_label = escape(f"{value:.1f}，{note}", quote=True)
             number = f'<span class="value">{value:.1f}</span>'
             url = source["pdf_url"]
             if url and official_url(url):
                 href = url.split("#", 1)[0] + (f"#page={pages[0]}" if pages else "")
-                content = f'<a href="{escape(href, quote=True)}" target="_blank" rel="noopener noreferrer" title="{escape(title, quote=True)}">{number}</a>'
+                content = f'<a href="{escape(href, quote=True)}" target="_blank" rel="noopener noreferrer" title="{escape(title, quote=True)}" aria-label="{accessible_label}">{number}</a>'
             else:
-                content = f'<span title="{escape(title, quote=True)}">{number}</span>'
-            cells.append(f'<td>{content}</td>')
+                content = f'<span title="{escape(title, quote=True)}" aria-label="{accessible_label}">{number}</span>'
+            cells.append(f'<td class="{comparison}">{content}</td>')
         rendered.append(
             f'<tr data-week="{escape(key, quote=True)}" data-year="{row["year"]}" '
             f'data-region="{region}" class="group-{groups[key]}">' + "".join(cells) + "</tr>"
         )
     years = sorted({row["year"] for row in rows})
-    year_options = "".join(f'<option value="{year}">{year} 年</option>' for year in years)
+    latest_year = str(years[-1]) if years else ""
+    year_options = "".join(f'<option value="{year}"{" selected" if str(year) == latest_year else ""}>{year} 年</option>' for year in years)
     generated = datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%Y-%m-%d %H:%M:%S Asia/Shanghai")
     template = Path(__file__).with_suffix(".html").read_text(encoding="utf-8")
     return (template.replace("<!-- ROWS -->", "\n".join(rendered))
             .replace("<!-- YEARS -->", year_options)
+            .replace("<!-- DEFAULT_YEAR -->", latest_year)
             .replace("<!-- GENERATED -->", generated)
             .replace("<!-- COUNTS -->", f"{len(weeks)} 个目标周 · {len(rows)} 行南北方数据"))
 
