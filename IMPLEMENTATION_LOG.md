@@ -168,3 +168,14 @@
 - 阶段总结：按用户授权为现有 GitHub 仓库添加手动 Pages 发布工作流。仅接收 stage_site 生成的六文件 ZIP，通过临时草稿 Release 传输并核验 SHA-256 和精确清单；数据不进入 Git 历史。更新 README 的数据覆盖与发布步骤。
 - 已执行验证：38 项 Python 测试、4 项 JavaScript 测试、Python compileall、JavaScript 语法检查通过；实际执行工作流的 Python 校验与解包代码，六个文件均与本地站点逐字节相同。发布包为 139 期、278 条观测，覆盖 2024-W01 至 2026-W35。git diff --check 通过。
 - 边界：尚待线上部署验证；未运行下载、修改坚果云或周六定时任务。仅提交工作流、README 和阶段日志。
+
+
+## 2026-09-07 01:28:01 Asia/Shanghai — GitHub Pages 上线并验证
+
+- 写入者模型：GPT-6（运行环境未暴露更具体型号）。
+- 设备：TianhaodeMacBook-Pro.local（macOS 26.6.2，arm64）。
+- 阶段总结：已为 watice555/flu_weekly 启用 GitHub Actions Pages 发布源及 HTTPS，网站 https://watice555.github.io/flu_weekly/ 部署成功；工作流运行 34048594267 第二次尝试成功。更新项目约定和 README 的上线状态。
+- 问题与修正：首次尝试因只读 GITHUB_TOKEN 无法找到草稿 Release 而失败；将同一公开网页包改为临时预发布 Release 后重跑成功，保留 contents: read 权限。工作流输入描述及操作说明已同步修正。部署后已删除临时 Release 和标签。
+- 已执行验证：Pages 工作流完成下载、SHA-256、六文件清单、数据格式校验及部署；通过 HTTPS 分别读取六个线上文件，均返回 HTTP 200 且与本地发布文件逐字节一致。Chrome 打开线上网址，南北方图表、最新日期、官方来源和覆盖信息正常出现（139 期，2024-W01 至 2026-W35）；已保留站点标签页。YAML 语法和 git diff --check 通过。
+- 验证范围：本阶段后续改动仅为工作流输入描述、部署文档与记录，复用前阶段通过的 38 项 Python / 4 项 JavaScript 测试及语法检查，无需重复运行；实际 GitHub Actions 发布成功补充验证工作流。
+- 边界：没有将生成数据提交 Git，没有发布 PDF、SQLite 或本地审计表格；没有运行真实下载或更改坚果云和周六 07:10 任务。线上更新仍需手动发布。

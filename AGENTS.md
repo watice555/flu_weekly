@@ -7,7 +7,7 @@
 - `flu_reports/`、`data/`、`site/data/`、`tmp/`、PDF、SQLite、CSV、虚拟环境和缓存都是本地数据或运行产物，不提交 Git。不要修改坚果云原件来纠正本地归档。
 - 网页只链接官方详情与官方 PDF；发布包由 `python -m flu_data.stage_site` 的明确文件清单生成，禁止上传整个项目或 PDF。
 - `main.py` 会访问官网并写入坚果云。开发默认使用离线测试及 `python -m flu_data.database`，无明确任务需要不运行真实下载或触发定时任务。
-- 保留现有周六 07:10 本机任务。创建远程仓库、发布站点或更改计划需有用户任务授权；本项目当前尚未发布，也未并入美团仓库。
+- 保留现有周六 07:10 本机任务。创建远程仓库、发布站点或更改计划需有用户任务授权；本项目已发布到 https://watice555.github.io/flu_weekly/，未并入美团仓库。
 - 修改后运行根 README 中的 Python/JavaScript 测试、语法检查和 `git diff --check`。
 - 每个独立验证阶段更新根 `IMPLEMENTATION_LOG.md`，记录总结、验证、精确的 Asia/Shanghai 本地时间、实际模型名称（无法可靠得知时记“未知（运行环境未暴露）”）、自动检测的主机名/操作系统/CPU 架构。不记录用户名、序列号、MAC 或 IP 等敏感设备标识。
 - 日志更新后创建有针对性的 Git 提交。先运行 `git status --short`，仅暂存本阶段相关文件，保留其他用户改动；未验证或无法提交时记录原因。
