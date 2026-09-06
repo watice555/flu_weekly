@@ -2,7 +2,7 @@
 
 从中国国家流感中心的周报 PDF 提取南、北方省份哨点医院 ILI%，建立本地 SQLite 数据库，并生成按流感年度对比的静态图表。项目位于 `~/Projects_local/flu_weekly`，使用独立 Git 仓库与虚拟环境。
 
-当前已归集 138 期有效报告、276 条南北方观测，连续覆盖 **2024 年第 1 周至 2026 年第 34 周**。后续随报告导入扩展。Git 默认分支为 `main`，尚未创建远程仓库或部署 GitHub Pages。
+当前已归集 139 期有效报告、278 条南北方观测，连续覆盖 **2024 年第 1 周至 2026 年第 35 周**。后续随报告导入扩展。Git 默认分支为 `main`，远程仓库为 `watice555/flu_weekly`。GitHub Pages 发布入口已配置，网址为 https://watice555.github.io/flu_weekly/。
 
 ## 查看与使用
 
@@ -193,6 +193,17 @@ ORDER BY region, source_year, source_week;
 ```
 
 命令创建新的临时发布目录，仅允许 `index.html`、`styles.css`、`app.mjs`、`chart.mjs`、`.nojekyll` 和 `data/ili.json`，**不会上传或部署**。只发布这个文件包，不能上传整个仓库；PDF 仅通过官网链接访问。SQLite 留在本地。
+
+### 发布到 GitHub Pages
+
+`.github/workflows/deploy-pages.yml` 只支持手动发布，不改变周六下载任务，也不会在推送源码时自动更新线上数据。更新步骤：
+
+1. 使用 `python -m flu_data.stage_site` 生成明确清单内的六个文件，将它们按相对路径压缩为 `site.zip`（不要包含发布目录本身）。
+2. 在本仓库创建临时草稿 Release 并上传 `site.zip`，记录包的 SHA-256。
+3. 通过 `gh workflow run deploy-pages.yml -f release_tag=草稿标签 -f sha256=包的SHA256` 启动发布。工作流下载包，检查校验值和精确文件清单，再通过 GitHub 官方 Pages Actions 发布。
+4. 等待工作流成功并核对线上页面与数据，然后删除临时草稿 Release；若有临时标签，一并清理。发布数据作为临时附件及 Pages artifact 传输，不进入 Git 历史。
+
+Pages 使用 GitHub Actions 作为发布源，只上传上述发布包。公开网址：https://watice555.github.io/flu_weekly/。
 
 当前未与美团项目合并，未做相关性计算。保留了自然日期、指标标识和南北方维度，便于未来明确城市映射、数据版本与时间聚合方式后共同展示。
 

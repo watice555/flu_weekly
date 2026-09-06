@@ -159,3 +159,12 @@
 - 回归验证：38 项 Python 测试及 4 项 JavaScript 图表测试通过；Python compileall、现有页面及表格内联 JavaScript 语法、zsh -n、git diff --check 通过。本次为可逆的显示修改，没有新增重复实现的测试文件。
 - 验证限制：前一阶段已确认内置浏览器工具禁止访问本地 file URL，本次未重试该受限操作或借助其他浏览器/临时服务绕过；未重新做截图或真实浏览器交互验证，以静态完整数据校验、实际筛选脚本执行和颜色对比度检查验证。已重生本地 HTML，用户刷新已打开页面后生效。
 - 边界：未改数据库原值、公开网站口径、坚果云、下载或定时任务，未联网或发布站点。生成 HTML 与临时校验数据均留在忽略目录。
+
+
+## 2026-09-07 01:25:50 Asia/Shanghai — 准备 GitHub Pages 发布
+
+- 写入者模型：GPT-6（运行环境未暴露更具体型号）。
+- 设备：TianhaodeMacBook-Pro.local（macOS 26.6.2，arm64）。
+- 阶段总结：按用户授权为现有 GitHub 仓库添加手动 Pages 发布工作流。仅接收 stage_site 生成的六文件 ZIP，通过临时草稿 Release 传输并核验 SHA-256 和精确清单；数据不进入 Git 历史。更新 README 的数据覆盖与发布步骤。
+- 已执行验证：38 项 Python 测试、4 项 JavaScript 测试、Python compileall、JavaScript 语法检查通过；实际执行工作流的 Python 校验与解包代码，六个文件均与本地站点逐字节相同。发布包为 139 期、278 条观测，覆盖 2024-W01 至 2026-W35。git diff --check 通过。
+- 边界：尚待线上部署验证；未运行下载、修改坚果云或周六定时任务。仅提交工作流、README 和阶段日志。

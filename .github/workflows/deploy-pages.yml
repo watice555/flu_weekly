@@ -1,0 +1,69 @@
+name: Deploy GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Draft release containing the staged site.zip
+        required: true
+        type: string
+      sha256:
+        description: SHA-256 of site.zip
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download staged public bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: gh release download "$RELEASE_TAG" --pattern site.zip --dir bundle
+      - name: Verify checksum and exact public file list
+        env:
+          BUNDLE_SHA256: ${{ inputs.sha256 }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          archive = Path('bundle/site.zip')
+          if hashlib.sha256(archive.read_bytes()).hexdigest() != os.environ['BUNDLE_SHA256']:
+              raise SystemExit('Bundle checksum mismatch')
+          allowed = {'index.html', 'styles.css', 'app.mjs', 'chart.mjs', '.nojekyll', 'data/ili.json'}
+          with ZipFile(archive) as bundle:
+              if set(bundle.namelist()) != allowed or len(bundle.namelist()) != len(allowed):
+                  raise SystemExit('Unexpected public file list')
+              payload = json.loads(bundle.read('data/ili.json'))
+              if payload.get('schema_version') != 1 or not payload.get('reports'):
+                  raise SystemExit('Invalid or empty public data')
+              for name in sorted(allowed):
+                  target = Path('public') / name
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(bundle.read(name))
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
