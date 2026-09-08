@@ -7,6 +7,8 @@ main { max-width:1460px; margin:0 auto; padding:30px 40px 36px; }
 h1 { font-size:28px; line-height:1.35; margin:0; font-weight:650; letter-spacing:.01em; }
 h1 span { font-size:22px; color:var(--blue); font-weight:450; margin-left:6px; }
 .subtitle { color:var(--muted); font-size:13px; margin:9px 0 0; }
+.masthead-meta { flex-shrink:0; display:flex; align-items:center; gap:24px; }
+.related-project { flex-shrink:0; font-size:12px; font-weight:600; white-space:nowrap; }
 .edition { flex-shrink:0; text-align:right; color:var(--muted); font-size:12px; line-height:1.9; }
 .edition strong { display:block; color:var(--ink); font-size:16px; font-weight:600; }
 .toolbar { display:flex; gap:20px; align-items:center; justify-content:space-between; padding:19px 0; }
@@ -74,6 +76,7 @@ footer strong { font-weight:550; color:#536e86; }
   main { padding:22px 15px; }
   .masthead { align-items:flex-start; gap:13px; flex-direction:column; padding-bottom:17px; }
   h1 { font-size:25px; } h1 span { font-size:20px; }
+  .masthead-meta { width:100%; justify-content:space-between; gap:12px; flex-wrap:wrap; }
   .edition { text-align:left; display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
   .edition strong { font-size:13px; }
   .toolbar { align-items:flex-start; padding:17px 0; }

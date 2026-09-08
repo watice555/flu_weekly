@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light" />
   <meta name="description" content="按流感年度对比南北方哨点医院 ILI%，每个数值均可追溯至国家流感中心周报。" />
   <title>流感周报 · 南北方 ILI%</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css?v=20260908-1" />
   <script type="module" src="./app.mjs"></script>
 </head>
 <body>
@@ -14,7 +14,10 @@
     <header class="masthead">
       <div><p class="eyebrow">中国国家流感中心 · 周报数据存档</p><h1>流感样病例趋势 <span>ILI%</span></h1>
         <p class="subtitle">南方与北方，按流感年度对比。数值来自每期报告正文。</p></div>
-      <div class="edition" id="edition">正在读取本地数据…</div>
+      <div class="masthead-meta">
+        <a class="related-project" href="https://watice555.github.io/meituan-infection-index/" target="_blank" rel="noopener noreferrer">美团传染病指数 ↗</a>
+        <div class="edition" id="edition">正在读取本地数据…</div>
+      </div>
     </header>
     <div id="error" class="notice error" role="alert" hidden></div>
     <section id="content" hidden>
