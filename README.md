@@ -2,7 +2,7 @@
 
 从中国国家流感中心的周报 PDF 提取南、北方省份哨点医院 ILI%，建立本地 SQLite 数据库，并生成按流感年度对比的静态图表。项目位于 `~/Projects_local/flu_weekly`，使用独立 Git 仓库与虚拟环境。
 
-当前已归集 139 期有效报告、278 条南北方观测，连续覆盖 **2024 年第 1 周至 2026 年第 35 周**。后续随报告导入扩展。Git 默认分支为 `main`，远程仓库为 `watice555/flu_weekly`。已部署到 GitHub Pages，网址为 https://watice555.github.io/flu_weekly/。
+当前已归集 141 期有效报告、282 条南北方观测，连续覆盖 **2024 年第 1 周至 2026 年第 37 周**。后续随报告导入扩展。Git 默认分支为 `main`，远程仓库为 `watice555/flu_weekly`。已部署到 GitHub Pages，网址为 https://watice555.github.io/flu_weekly/。
 
 ## 查看与使用
 
@@ -180,7 +180,7 @@ ORDER BY region, source_year, source_week;
 .venv/bin/python main.py
 ```
 
-既有 LaunchAgent `~/Library/LaunchAgents/com.wuth.flu-weekly.plist` 仍通过 `~/Cron/Scripts/flu-weekly.sh` 在每周六 **07:10（本机 Asia/Shanghai）**运行。日志仍在 `~/Cron/Logs/flu-weekly.out.log` 和 `flu-weekly.err.log`。本次没有改变计划或手动触发任务。复制/克隆项目不会自动安装任务。
+既有 LaunchAgent `~/Library/LaunchAgents/com.wuth.flu-weekly.plist` 仍通过 `~/Cron/Scripts/flu-weekly.sh` 在每周六 **07:10（本机 Asia/Shanghai）**运行。日志仍在 `~/Cron/Logs/flu-weekly.out.log` 和 `flu-weekly.err.log`。计划时间保持不变，包装脚本现调用仓库内的 `scripts/update-and-publish.sh`：下载与数据库构建成功后自动发布网站。复制/克隆项目不会自动安装任务。
 
 ## Git 与网页发布边界
 
@@ -196,7 +196,27 @@ ORDER BY region, source_year, source_week;
 
 ### 发布到 GitHub Pages
 
-`.github/workflows/deploy-pages.yml` 只支持手动发布，不改变周六下载任务，也不会在推送源码时自动更新线上数据。更新步骤：
+周六任务通过 `scripts/update-and-publish.sh` 顺序执行 `main.py` 和 `python -m flu_data.publish_site`，任一步失败则返回非零退出码，错误写入原有任务日志。发布时间取决于本机运行、联网和 GitHub 授权可用。
+
+`flu_data.publish_site` 复用 `.github/workflows/deploy-pages.yml` 的 `workflow_dispatch` 发布入口，不在推送源码时自动部署。通过内容指纹排除 JSON 的 `generated_at`，无内容变化时跳过；数据或 HTML/CSS/JS 变化时发布。仅上传 `stage_site` 允许的六文件 ZIP，等待对应工作流完成并逐字节核对线上六文件，再记录成功并删除临时 Release 和标签。
+
+状态位于被忽略的 `data/publish_state.json`，文件锁防止本机并发发布。失败不会推进成功指纹；等待超时或线上核验失败时保留待处理信息，下次调用继续检查。没有新周报时也会调用发布，因此可以重试失败的部署。若上次工作流失败，清理后返回失败，下一次调用重新打包发布。中断于上传阶段的临时 Release 会在下次清理。
+
+仅发布当前本地网页数据（不下载 PDF、不写坚果云）：
+
+```bash
+.venv/bin/python -m flu_data.publish_site
+```
+
+离线检查发布清单和是否有内容变化（不联网、不上传）：
+
+```bash
+.venv/bin/python -m flu_data.publish_site --dry-run
+```
+
+新机器需先安装并登录 GitHub CLI（`gh auth login`），具备此仓库的 Release 写入和 Actions 触发权限，再配置本机任务。现有机器已配置。完整手动更新可运行 `scripts/update-and-publish.sh`，会真实下载并同步坚果云。
+
+原有手动发布仍可使用：
 
 1. 使用 `python -m flu_data.stage_site` 生成明确清单内的六个文件，将它们按相对路径压缩为 `site.zip`（不要包含发布目录本身）。
 2. 在本仓库创建临时预发布 Release 并上传 `site.zip`，记录包的 SHA-256。

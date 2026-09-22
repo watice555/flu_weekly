@@ -1,4 +1,5 @@
 name: Deploy GitHub Pages
+run-name: Deploy ${{ inputs.release_tag }}
 
 on:
   workflow_dispatch:
