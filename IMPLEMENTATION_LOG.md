@@ -1,5 +1,12 @@
 # 实施记录
 
+## 2026-10-17 20:04:01 Asia/Shanghai — 本地预览端口改为 8790
+
+- 写入者模型：qwen3.8-flash-next。
+- 设备：MacBook Pro（macOS，arm64）。
+- 阶段总结：本机端口盘点发现 8765 是默认值重灾区（crypto_assets 网页常驻占用、git-sentry API 默认值、flu_weekly README 推荐值三方重叠，前两者有自动换端口而本项目预览无）。将 README 本地预览推荐端口从 8765 改为 8790，两行文档改动，不影响构建、发布与周六自动任务。
+- 已执行验证：`grep -rn 8765 README.md AGENTS.md docs/` 无残留；`grep 8790 README.md` 确认命令与访问地址两处一致。纯文档改动，未运行测试套件。
+
 ## 2026-09-22 23:57:46 Asia/Shanghai — 启用周六自动发布并验证上线
 
 - 写入者模型：GPT-6（运行环境未暴露更具体型号）。

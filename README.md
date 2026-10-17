@@ -25,10 +25,10 @@ python3 -m venv .venv
 本地预览（只能访问 `site/`，不会暴露 PDF、SQLite 或项目私有文件）：
 
 ```bash
-.venv/bin/python -m http.server 8765 --bind 127.0.0.1 --directory site
+.venv/bin/python -m http.server 8790 --bind 127.0.0.1 --directory site
 ```
 
-打开 `http://127.0.0.1:8765/`。页面提供：
+打开 `http://127.0.0.1:8790/`。页面提供：
 
 - 南北方两张图，默认显示最近四个已收录的流感年度。
 - 第 14 周至次年第 13 周的周次排列；如有第 53 周单独保留，不合并或丢弃。
